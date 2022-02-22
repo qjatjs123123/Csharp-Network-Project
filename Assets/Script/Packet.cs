@@ -8,16 +8,19 @@ using UnityEngine;
 public enum ServerPackets
 {
     welcome = 1,
-    spawnPlayer,
-    playerPosition,
-    playerRotation
+    //spawnPlayer,
+    //playerPosition,
+    //playerRotation
+    udpTest
+
 }
 
 /// <summary>Sent from client to server.</summary>
 public enum ClientPackets
 {
     welcomeReceived = 1,
-    playerMovement
+    //playerMovement
+    udpTestReceive
 }
 
 public class Packet : IDisposable
@@ -65,6 +68,9 @@ public class Packet : IDisposable
     /// <summary>Inserts the length of the packet's content at the start of the buffer.</summary>
     public void WriteLength()
     {
+        /*InsertRange 0번째 인덱스부터 시작되는 인덱스
+         
+         */
         buffer.InsertRange(0, BitConverter.GetBytes(buffer.Count)); // Insert the byte length of the packet at the very beginning
     }
 
@@ -91,6 +97,7 @@ public class Packet : IDisposable
     /// <summary>Gets the length of the unread data contained in the packet.</summary>
     public int UnreadLength()
     {
+        
         return Length() - readPos; // Return the remaining length (unread)
     }
 
@@ -116,12 +123,14 @@ public class Packet : IDisposable
     /// <param name="_value">The byte to add.</param>
     public void Write(byte _value)
     {
+        /*Add는 리스트에 하나만 추가할 때 사용*/
         buffer.Add(_value);
     }
     /// <summary>Adds an array of bytes to the packet.</summary>
     /// <param name="_value">The byte array to add.</param>
     public void Write(byte[] _value)
     {
+        /*AddRange는 리스트에 배열을 추가할 때 사용*/
         buffer.AddRange(_value);
     }
     /// <summary>Adds a short to the packet.</summary>
@@ -185,10 +194,12 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public byte ReadByte(bool _moveReadPos = true)
     {
+
         if (buffer.Count > readPos)
         {
             // If there are unread bytes
             byte _value = readableBuffer[readPos]; // Get the byte at readPos' position
+            
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
@@ -251,8 +262,16 @@ public class Packet : IDisposable
     {
         if (buffer.Count > readPos)
         {
-            // If there are unread bytes
+            /* BitConverter.ToInt32는 4바이트에서 변환된 32비트 부호 있는 정수를 
+             바이트 배열의 지정된 위치에 반환
+
+            readableBuffer는 바이트 배열
+            readPos는 바이트 배열내 시작 위치
+            */
+
             int _value = BitConverter.ToInt32(readableBuffer, readPos); // Convert the bytes to an int
+            Debug.Log("readbufferlength: "+readableBuffer.Length+"value: " + _value);
+
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
